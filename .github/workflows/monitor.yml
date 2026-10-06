@@ -1,7 +1,7 @@
 name: pokemon-restock-alerts
 on:
   schedule:
-    - cron: "*/10 * * * *"     # every 10 minutes (GitHub may start a few minutes late)
+    - cron: "*/5 * * * *"      # every 5 minutes, GitHub's minimum (it may start a few minutes late)
   workflow_dispatch:            # "Run workflow" button for a manual check
 concurrency: monitor            # never two runs at the same time
 permissions:
@@ -9,7 +9,7 @@ permissions:
 jobs:
   check:
     runs-on: ubuntu-latest
-    timeout-minutes: 8
+    timeout-minutes: 4
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5

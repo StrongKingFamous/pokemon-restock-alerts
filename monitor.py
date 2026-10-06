@@ -1,6 +1,6 @@
 """Pokémon TCG restock alerts for Dutch webshops -> Telegram.
 
-Every run (GitHub Actions, every ~10 minutes) reads the public product lists of the shops in
+Every run (GitHub Actions, every ~5 minutes) reads the public product lists of the shops in
 shops.yaml, keeps only Pokémon products, and compares them with the previous run (state.json):
 
   * NEW       a Pokémon product that wasn't in the shop before (and is in stock)
@@ -29,7 +29,7 @@ import yaml
 
 HERE = Path(__file__).resolve().parent
 STATE = HERE / "state.json"
-UA = {"User-Agent": "Mozilla/5.0 (personal Pokémon restock alert; one request per page, every 10 min)"}
+UA = {"User-Agent": "Mozilla/5.0 (personal Pokémon restock alert; one request per page, every 5 min)"}
 POKEMON = re.compile(r"pok[eé]mon", re.I)
 SKIP = re.compile(r"\b(sleeves?|deck ?box|binder|map|toploader|playmat|speelmat|portfolio|kaarthouder|dice|dobbelste)", re.I)
 PAUSE = 1.0           # seconds between requests to the same shop: be a polite visitor
@@ -118,12 +118,19 @@ def main():
     watch = (yaml.safe_load((HERE / "watchlist.yaml").read_text(encoding="utf-8")) or {}).get("watch") or []
     state = json.loads(STATE.read_text(encoding="utf-8")) if STATE.exists() else {}
     sent = 0
-    for shop in shops:
-        name, base = shop["name"], shop["url"].rstrip("/")
+    def fetch(shop):   # each shop is still read page by page (polite); different shops run at the same time
         try:
-            products = [p for p in READERS[shop["type"]](base) if is_pokemon_product(p)]
+            return shop, [p for p in READERS[shop["type"]](shop["url"].rstrip("/")) if is_pokemon_product(p)], None
         except Exception as e:   # one shop down must not stop the others
-            print(f"{name}: skipped ({str(e)[:80]})")
+            return shop, None, e
+
+    from concurrent.futures import ThreadPoolExecutor
+    with ThreadPoolExecutor(8) as ex:
+        results = list(ex.map(fetch, shops))
+    for shop, products, err in results:
+        name = shop["name"]
+        if err is not None:
+            print(f"{name}: skipped ({str(err)[:80]})")
             continue
         old = state.get(name)
         new_state = {p["id"]: {"a": p["available"], "p": p["price"], "w": (old or {}).get(p["id"], {}).get("w")}
@@ -143,7 +150,6 @@ def main():
                     send(f"💰 <b>Onder je max (€{w['max_price']})</b> bij {name}\n{link}\n{price}", dry); sent += 1
                     new_state[p["id"]]["w"] = p["price"]
         state[name] = new_state
-        time.sleep(PAUSE)
     STATE.write_text(json.dumps(state, ensure_ascii=False, indent=0, sort_keys=True), encoding="utf-8")
     print(f"{sent} alerts")
 
