@@ -1,0 +1,11 @@
+# Dutch Pokémon webshops with a public product list (checked 2026-10-07).
+# type: shopify (reads /products.json) or woocommerce (reads /wp-json/wc/store/v1/products).
+# Big chains (Bol, Dreamland, MediaMarkt, Intertoys, Pokémon Center) and Cees Cards block this kind of reading; not included.
+shops:
+  - {name: "PokeFamily",    type: shopify,     url: "https://pokefamily.nl"}
+  - {name: "Royal Cards",   type: woocommerce, url: "https://royalcards.nl"}
+  - {name: "David PTCG",    type: woocommerce, url: "https://davidptcg.nl"}
+  - {name: "Pokémon Pack",  type: woocommerce, url: "https://pokemonpack.nl"}
+  - {name: "TCG Company",   type: woocommerce, url: "https://tcgcompany.nl"}
+  - {name: "De Broergrot",  type: shopify,     url: "https://www.debroergrot.nl"}
+  - {name: "PKMkaarten",    type: woocommerce, url: "https://www.pkmkaarten.nl"}

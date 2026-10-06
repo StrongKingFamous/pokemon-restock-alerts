@@ -1,0 +1,5 @@
+# Optional: get a 💰 alert when a product whose title contains ALL keywords is in stock at or below max_price (euro).
+# Examples (remove the # to use them):
+watch:
+  # - {keywords: ["elite trainer box", "prismatic"], max_price: 60}
+  # - {keywords: ["booster box"], max_price: 140}
