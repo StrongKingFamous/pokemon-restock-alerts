@@ -118,6 +118,20 @@ def focus_hit(p: dict, focus: list[dict]) -> dict | None:
     return None
 
 
+def msrp_line(p: dict, focus_name: str, msrp: dict) -> str:
+    """Official reference price for a focus product, if known (US MSRP / UK RRP; no official euro price)."""
+    t = p["title"].lower()
+    if re.search(r"chin|japan|korea|\bjp\b|\bcn\b|\bkr\b|\(jap|\bthai", t):   # other editions have other official prices
+        return ""
+    if re.search(r"display|\bcase\b|\d+\s?x\b|\d+\s?pc|\d+\s?stuks|set van|bundel van|combi", t):   # multiples
+        return ""
+    for m in msrp.get(focus_name) or []:
+        if all(k in t for k in m["keywords"]) and not any(n in t for n in m.get("not", [])):
+            parts = [f"${m['usd']:.2f} VS"] + ([f"£{m['gbp']:.2f} VK"] if m.get("gbp") else [])
+            return "Officiële prijs: " + " / ".join(parts).replace(".", ",")
+    return ""
+
+
 def watch_hit(p: dict, watch: list[dict]) -> dict | None:
     t = p["title"].lower()
     for w in watch:
@@ -134,7 +148,7 @@ def main():
     dry = args.dry_run
     shops = yaml.safe_load((HERE / "shops.yaml").read_text(encoding="utf-8"))["shops"]
     lists = yaml.safe_load((HERE / "watchlist.yaml").read_text(encoding="utf-8")) or {}
-    watch, focus = lists.get("watch") or [], lists.get("focus") or []
+    watch, focus, msrp = lists.get("watch") or [], lists.get("focus") or [], lists.get("msrp") or {}
     state = json.loads(STATE.read_text(encoding="utf-8")) if STATE.exists() else {}
     sent = 0
     def fetch(shop):   # each shop is still read page by page (polite); different shops run at the same time
@@ -153,7 +167,9 @@ def main():
         lines = [f"🎯 <b>{html.escape(args.overview)}: nu op voorraad ({len(rows)})</b>"]
         for price, shop_name, p in rows:
             euro = f"€{price:.2f}".replace(".", ",")
-            lines.append(f"• <a href=\"{p['url']}\">{html.escape(p['title'][:70])}</a> · {shop_name} · {euro}")
+            ref = msrp_line(p, args.overview, msrp).replace("Officiële prijs: ", "officieel ")
+            lines.append(f"• <a href=\"{p['url']}\">{html.escape(p['title'][:70])}</a> · {shop_name} · {euro}"
+                         + (f" ({ref})" if ref else ""))
         msg = ""
         for line in lines:   # Telegram messages max 4096 characters
             if len(msg) + len(line) > 3800:
@@ -178,6 +194,8 @@ def main():
                 f = focus_hit(p, focus)
                 if f:   # focus product: every event
                     tag = f"🎯 <b>{html.escape(f['name'])}</b> · "
+                    ref = msrp_line(p, f["name"], msrp)
+                    price = price + (f"\n<i>{ref}</i>" if ref else "")
                     if before is None:
                         state_txt = "nu te koop" if p["available"] else "nog niet leverbaar (pre-order/binnenkort)"
                         send(f"{tag}🆕 Nieuw bij {name} ({state_txt})\n{link}\n{price}", dry); sent += 1

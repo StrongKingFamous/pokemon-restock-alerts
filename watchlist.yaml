@@ -8,3 +8,24 @@ focus:
 watch:
   # - {keywords: ["elite trainer box", "prismatic"], max_price: 60}
   # - {keywords: ["booster box"], max_price: 140}
+
+# Official reference prices (there is no official euro price: US MSRP and UK RRP, source billsarchive.com, checked 2026-10-07).
+# First match wins, so put the more specific product first. "not": title must not contain these words.
+msrp:
+  30th:
+    - {keywords: ["pokemon center", "elite trainer"], usd: 59.99, gbp: 56.99}
+    - {keywords: ["pokémon center", "elite trainer"], usd: 59.99, gbp: 56.99}
+    - {keywords: ["elite trainer"], usd: 49.99, gbp: 49.99}
+    - {keywords: ["ultra", "premium"], usd: 179.99}
+    - {keywords: ["ditto", "premium"], usd: 39.99}
+    - {keywords: ["binder collection"], usd: 31.99, gbp: 37.99}
+    - {keywords: ["figure collection"], usd: 29.99}
+    - {keywords: ["booster bundle"], not: ["case", "display", "25x", "10x"], usd: 26.94}
+    - {keywords: ["ex box"], usd: 21.99, gbp: 21.99}
+    - {keywords: ["battle deck"], usd: 19.99}
+    - {keywords: ["tech sticker"], usd: 14.99, gbp: 16.99}
+    - {keywords: ["poster collection"], usd: 14.99, gbp: 19.99}
+    - {keywords: ["mini tin"], usd: 9.99, gbp: 12.99}
+    - {keywords: ["tin"], not: ["mini"], usd: 21.99, gbp: 21.99}
+    - {keywords: ["knock out"], usd: 9.99}
+    - {keywords: ["blister"], not: ["checklane"], usd: 9.99, gbp: 9.99}
