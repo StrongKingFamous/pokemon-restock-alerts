@@ -102,6 +102,22 @@ def send(text: str, dry: bool) -> None:
     time.sleep(0.5)
 
 
+SEALED = re.compile(r"booster|bundle|bundel|box|etb|elite trainer|collection|collectie|tin\b|blister|display|"
+                    r"\bpack\b|\bcase\b|checklane|premium|sealed|doos|mini tin|build ?& ?battle", re.I)
+SINGLE = re.compile(r"\b\d{1,3}/\d{2,3}\b|\bsingle\b|losse kaart|\bpsa\b|\bcgc\b|\bbgs\b|graded|\bholo\b rare|"
+                    r"figure|figuur|plush|knuffel|beeldje", re.I)   # not sealed card products
+
+
+def focus_hit(p: dict, focus: list[dict]) -> dict | None:
+    """Focus lists (watchlist.yaml): every event for these products, also pre-orders, sold out and price changes."""
+    t = p["title"].lower()
+    for f in focus:
+        if all(k.lower() in t for k in f["keywords"]) and \
+                (not f.get("sealed_only") or (SEALED.search(t) and not SINGLE.search(t))):
+            return f
+    return None
+
+
 def watch_hit(p: dict, watch: list[dict]) -> dict | None:
     t = p["title"].lower()
     for w in watch:
@@ -113,9 +129,12 @@ def watch_hit(p: dict, watch: list[dict]) -> dict | None:
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--dry-run", action="store_true", help="print the alerts instead of sending them")
-    dry = ap.parse_args().dry_run
+    ap.add_argument("--overview", metavar="FOCUS", help="send what is in stock now for a focus list (no state change)")
+    args = ap.parse_args()
+    dry = args.dry_run
     shops = yaml.safe_load((HERE / "shops.yaml").read_text(encoding="utf-8"))["shops"]
-    watch = (yaml.safe_load((HERE / "watchlist.yaml").read_text(encoding="utf-8")) or {}).get("watch") or []
+    lists = yaml.safe_load((HERE / "watchlist.yaml").read_text(encoding="utf-8")) or {}
+    watch, focus = lists.get("watch") or [], lists.get("focus") or []
     state = json.loads(STATE.read_text(encoding="utf-8")) if STATE.exists() else {}
     sent = 0
     def fetch(shop):   # each shop is still read page by page (polite); different shops run at the same time
@@ -127,6 +146,21 @@ def main():
     from concurrent.futures import ThreadPoolExecutor
     with ThreadPoolExecutor(8) as ex:
         results = list(ex.map(fetch, shops))
+    if args.overview:   # one-off summary of what is buyable right now
+        f = [x for x in focus if x["name"] == args.overview]
+        rows = sorted(((p["price"], shop["name"], p) for shop, products, err in results if products
+                       for p in products if p["available"] and focus_hit(p, f)), key=lambda r: (r[2]["title"], r[0]))
+        lines = [f"🎯 <b>{html.escape(args.overview)}: nu op voorraad ({len(rows)})</b>"]
+        for price, shop_name, p in rows:
+            euro = f"€{price:.2f}".replace(".", ",")
+            lines.append(f"• <a href=\"{p['url']}\">{html.escape(p['title'][:70])}</a> · {shop_name} · {euro}")
+        msg = ""
+        for line in lines:   # Telegram messages max 4096 characters
+            if len(msg) + len(line) > 3800:
+                send(msg, dry); msg = ""
+            msg += line + "\n"
+        send(msg or lines[0], dry)
+        return
     for shop, products, err in results:
         name = shop["name"]
         if err is not None:
@@ -141,6 +175,20 @@ def main():
                 before = old.get(p["id"])
                 price = f"€{p['price']:.2f}".replace(".", ",")
                 link = f"<a href=\"{p['url']}\">{html.escape(p['title'])}</a>"
+                f = focus_hit(p, focus)
+                if f:   # focus product: every event
+                    tag = f"🎯 <b>{html.escape(f['name'])}</b> · "
+                    if before is None:
+                        state_txt = "nu te koop" if p["available"] else "nog niet leverbaar (pre-order/binnenkort)"
+                        send(f"{tag}🆕 Nieuw bij {name} ({state_txt})\n{link}\n{price}", dry); sent += 1
+                    elif not before["a"] and p["available"]:
+                        send(f"{tag}✅ Weer op voorraad bij {name}\n{link}\n{price}", dry); sent += 1
+                    elif before["a"] and not p["available"]:
+                        send(f"{tag}❌ Uitverkocht bij {name}\n{link}", dry); sent += 1
+                    elif before["a"] and p["available"] and abs((before.get("p") or 0) - p["price"]) >= 0.01:
+                        old_price = f"€{before['p']:.2f}".replace(".", ",")
+                        send(f"{tag}💶 Prijs {old_price} → {price} bij {name}\n{link}", dry); sent += 1
+                    continue
                 if before is None and p["available"]:
                     send(f"🆕 <b>Nieuw</b> bij {name}\n{link}\n{price}", dry); sent += 1
                 elif before is not None and not before["a"] and p["available"]:
