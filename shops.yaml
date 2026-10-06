@@ -31,3 +31,18 @@ shops:
   - {name: "TF Robots",              type: shopify,     url: "https://tf-robots.com"}
   - {name: "Ultra Cards",            type: woocommerce, url: "https://ultracards.eu"}
   - {name: "Vinti Cards",            type: woocommerce, url: "https://vinticards.com"}
+  # added 2026-10-07: shops from the tcgsniper.nl list whose real domain differs from the guessed one
+  - {name: "Arcane Accessories",     type: woocommerce, url: "https://arcaneaccessories.nl"}
+  - {name: "Arly Trading",           type: woocommerce, url: "https://arlytrading.nl"}
+  - {name: "Cards by Beard",         type: shopify,     url: "https://cardsbybeard.eu"}
+  - {name: "Collgamers",             type: shopify,     url: "https://collgamers.nl"}
+  - {name: "Fantasy World",          type: shopify,     url: "https://fantasyworld.be"}
+  - {name: "Knoldex",                type: shopify,     url: "https://knoldex.nl"}
+  - {name: "Liwo TCG",               type: shopify,     url: "https://liwotcg.nl"}
+  - {name: "Magic Traders",          type: shopify,     url: "https://magictraders.nl"}
+  - {name: "Otakura",                type: shopify,     url: "https://otakura.com"}
+  - {name: "TCG Platform",           type: shopify,     url: "https://tcgplatform.nl"}
+  - {name: "TCG Reus",               type: shopify,     url: "https://tcgreus.nl"}
+  - {name: "TCG Viert",              type: shopify,     url: "https://tcgviert.com"}
+  - {name: "Yellow Duck TCG",        type: shopify,     url: "https://yellowducktcg.nl"}
+  - {name: "Zy Cards",               type: woocommerce, url: "https://zycards.nl"}
