@@ -1,6 +1,7 @@
 # Dutch Pokémon webshops with a public product list (checked 2026-10-07).
 # type: shopify (reads /products.json) or woocommerce (reads /wp-json/wc/store/v1/products).
-# Big chains (Bol, Dreamland, MediaMarkt, Intertoys, Pokémon Center) and Cees Cards block this kind of reading; not included.
+# Big chains (Bol, Dreamland, MediaMarkt, Intertoys, Pokémon Center), Cees Cards and Global Card Shop block this kind of reading; not included.
+# TCG Company blocks GitHub's servers (works from home), it is skipped automatically online.
 shops:
   - {name: "PokeFamily",    type: shopify,     url: "https://pokefamily.nl"}
   - {name: "Royal Cards",   type: woocommerce, url: "https://royalcards.nl"}
@@ -9,3 +10,24 @@ shops:
   - {name: "TCG Company",   type: woocommerce, url: "https://tcgcompany.nl"}
   - {name: "De Broergrot",  type: shopify,     url: "https://www.debroergrot.nl"}
   - {name: "PKMkaarten",    type: woocommerce, url: "https://www.pkmkaarten.nl"}
+  # added 2026-10-07 from the tcgsniper.nl shop list (only shops with an open product list)
+  - {name: "Pokeca",                 type: shopify,     url: "https://pokeca.be"}
+  - {name: "PokePlaza",              type: shopify,     url: "https://pokeplaza.nl"}
+  - {name: "Mirai Cards",            type: shopify,     url: "https://miraicards.com"}
+  - {name: "TradingCardGameStore",   type: woocommerce, url: "https://tradingcardgamestore.com"}
+  - {name: "Cardstore",              type: shopify,     url: "https://cardstore.nl"}
+  - {name: "King Cards",             type: shopify,     url: "https://kingcards.nl"}
+  - {name: "Maximus",                type: woocommerce, url: "https://maximus.be"}
+  - {name: "Packbase",               type: woocommerce, url: "https://packbase.nl"}
+  - {name: "Cards R Fun",            type: shopify,     url: "https://cardsrfun.com"}
+  - {name: "Deck Kingdom",           type: shopify,     url: "https://deckkingdom.nl"}
+  - {name: "Evlu TCG",               type: shopify,     url: "https://evlutcg.com"}
+  - {name: "Gadgetpoint",            type: shopify,     url: "https://gadgetpoint.nl"}
+  - {name: "Oppa Cards",             type: woocommerce, url: "https://oppacards.com"}
+  - {name: "Outpost Brussels",       type: shopify,     url: "https://outpostbrussels.be"}
+  - {name: "PikaPanda",              type: shopify,     url: "https://pikapanda.nl"}
+  - {name: "Rare Cards",             type: shopify,     url: "https://rarecards.nl"}
+  - {name: "Rubygator",              type: shopify,     url: "https://rubygator.nl"}
+  - {name: "TF Robots",              type: shopify,     url: "https://tf-robots.com"}
+  - {name: "Ultra Cards",            type: woocommerce, url: "https://ultracards.eu"}
+  - {name: "Vinti Cards",            type: woocommerce, url: "https://vinticards.com"}
