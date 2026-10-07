@@ -1,0 +1,9 @@
+# Ticket news to watch. A message is sent for every NEW article whose link or title contains one of the keywords.
+# send_existing: also send the matching articles that are already there on the first run.
+news:
+  - name: losc-galatasaray
+    label: "Lille – Galatasaray (21 okt): nieuws over kaarten"
+    url: "https://www.losc.fr/actualites"
+    link_contains: "/actualites/"
+    keywords: ["galatasaray"]
+    send_existing: true
