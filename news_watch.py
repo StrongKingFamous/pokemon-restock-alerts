@@ -42,10 +42,12 @@ def articles(src: dict) -> list[tuple[str, str]]:
     """(absolute url, title) of the article links on the news page."""
     page = requests.get(src["url"], headers=UA, timeout=30)
     page.raise_for_status()
+    page.encoding = src.get("encoding") or page.apparent_encoding   # e.g. tff.org is windows-1254
     out, seen = [], set()
     for m in re.finditer(r'<a[^>]+href="([^"]+)"[^>]*>(.*?)</a>', page.text, re.S):
         href, inner = m.group(1), m.group(2)
-        if src["link_contains"] not in href:
+        wanted = src["link_contains"] if isinstance(src["link_contains"], list) else [src["link_contains"]]
+        if not any(w in href for w in wanted):
             continue
         url = urljoin(src["url"], href)
         title = html.unescape(re.sub(r"\s+", " ", re.sub(r"<[^>]+>", " ", inner))).strip()
@@ -73,7 +75,7 @@ def main():
         first = src["name"] not in state
         for url, title in found:
             text = f"{url} {title}".lower()
-            if url in known or not any(k in text for k in src["keywords"]):
+            if url in known or not any(k in text for k in src["keywords"])                     or any(x in text for x in src.get("exclude", [])):
                 continue
             if not first or src.get("send_existing"):
                 send(f"⚽ <b>{html.escape(src['label'])}</b>\n<a href=\"{url}\">{html.escape(title)}</a>", dry)

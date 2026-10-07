@@ -7,3 +7,17 @@ news:
     link_contains: "/actualites/"
     keywords: ["galatasaray"]
     send_existing: true
+  - name: galatasaray-tickets
+    label: "Galatasaray: kaartverkoop (voetbal)"
+    url: "https://www.galatasaray.org/"
+    link_contains: ["/haber/futbol/biletler/", "/haber/ali-sami-yen-spor-kompleksi-rams-park/", "/haber/futbol/"]
+    keywords: ["bilet"]
+    exclude: ["basketbol", "voleybol", "kadin-futbol", "engelli", "kombine"]
+    send_existing: true
+  - name: turkiye-a-milli-tickets
+    label: "Turkije (A Milli Takım): kaartverkoop"
+    url: "https://www.tff.org/default.aspx?pageID=202"
+    link_contains: "ftxtID="
+    encoding: "windows-1254"
+    keywords: ["bilet", "taraftar bilgilendirme"]
+    send_existing: true
