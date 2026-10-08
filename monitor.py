@@ -112,7 +112,8 @@ def focus_hit(p: dict, focus: list[dict]) -> dict | None:
     """Focus lists (watchlist.yaml): every event for these products, also pre-orders, sold out and price changes."""
     t = p["title"].lower()
     for f in focus:
-        if all(k.lower() in t for k in f["keywords"]) and \
+        if all(k.lower() in t for k in f.get("keywords", [])) and \
+                (not f.get("any") or any(k.lower() in t for k in f["any"])) and \
                 (not f.get("sealed_only") or (SEALED.search(t) and not SINGLE.search(t))):
             return f
     return None
@@ -149,6 +150,7 @@ def main():
     shops = yaml.safe_load((HERE / "shops.yaml").read_text(encoding="utf-8"))["shops"]
     lists = yaml.safe_load((HERE / "watchlist.yaml").read_text(encoding="utf-8")) or {}
     watch, focus, msrp = lists.get("watch") or [], lists.get("focus") or [], lists.get("msrp") or {}
+    only_focus = bool(lists.get("only_focus"))   # true: no alerts for other Pokémon products
     state = json.loads(STATE.read_text(encoding="utf-8")) if STATE.exists() else {}
     sent = 0
     def fetch(shop):   # each shop is still read page by page (polite); different shops run at the same time
@@ -195,7 +197,8 @@ def main():
                 if f:   # focus product: every event
                     tag = f"🎯 <b>{html.escape(f['name'])}</b> · "
                     ref = msrp_line(p, f["name"], msrp)
-                    price = price + (f"\n<i>{ref}</i>" if ref else "")
+                    ref = f"\n<i>{ref}</i>" if ref else ""
+                    new_price, price = price, price + ref
                     if before is None:
                         state_txt = "nu te koop" if p["available"] else "nog niet leverbaar (pre-order/binnenkort)"
                         send(f"{tag}🆕 Nieuw bij {name} ({state_txt})\n{link}\n{price}", dry); sent += 1
@@ -205,7 +208,9 @@ def main():
                         send(f"{tag}❌ Uitverkocht bij {name}\n{link}", dry); sent += 1
                     elif before["a"] and p["available"] and abs((before.get("p") or 0) - p["price"]) >= 0.01:
                         old_price = f"€{before['p']:.2f}".replace(".", ",")
-                        send(f"{tag}💶 Prijs {old_price} → {price} bij {name}\n{link}", dry); sent += 1
+                        send(f"{tag}💶 Prijs {old_price} → {new_price} bij {name}\n{link}{ref}", dry); sent += 1
+                    continue
+                if only_focus:
                     continue
                 if before is None and p["available"]:
                     send(f"🆕 <b>Nieuw</b> bij {name}\n{link}\n{price}", dry); sent += 1
