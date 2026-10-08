@@ -1,6 +1,8 @@
 # Dutch Pokémon webshops with a public product list (checked 2026-10-07).
-# type: shopify (reads /products.json) or woocommerce (reads /wp-json/wc/store/v1/products).
-# Big chains (Bol, Dreamland, MediaMarkt, Intertoys, Pokémon Center), Cees Cards and Global Card Shop block this kind of reading; not included.
+# type: shopify (reads /products.json) or woocommerce (reads /wp-json/wc/store/v1/products),
+# or search: ONE search-results page in plain HTML (item = CSS selector of a product tile), for shops without a product list.
+# Big chains (Bol, Dreamland, MediaMarkt, Intertoys, Game Mania, Nedgame, Toychamp, Pokémon Center) and Cees Cards block automated reading,
+# also a real browser (403, checked 2026-10-09); not included.
 # TCG Company blocks GitHub's servers (works from home), it is skipped automatically online.
 shops:
   - {name: "PokeFamily",    type: shopify,     url: "https://pokefamily.nl"}
@@ -46,3 +48,5 @@ shops:
   - {name: "TCG Viert",              type: shopify,     url: "https://tcgviert.com"}
   - {name: "Yellow Duck TCG",        type: shopify,     url: "https://yellowducktcg.nl"}
   - {name: "Zy Cards",               type: woocommerce, url: "https://zycards.nl"}
+  - {name: "Global Card Shop",       type: search, url: "https://globalcardshop.com/?s=pokemon+30th&post_type=product", item: ".e-loop-item"}
+  - {name: "Top1Toys",               type: search, url: "https://www.top1toys.nl/catalogsearch/result/?q=pokemon+30th", item: "form.product_addtocart_form"}

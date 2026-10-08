@@ -31,7 +31,7 @@ HERE = Path(__file__).resolve().parent
 STATE = HERE / "state.json"
 UA = {"User-Agent": "Mozilla/5.0 (personal Pokémon restock alert; one request per page, every 5 min)"}
 POKEMON = re.compile(r"pok[eé]mon", re.I)
-SKIP = re.compile(r"\b(sleeves?|deck ?box|binder|map|toploader|playmat|speelmat|portfolio|kaarthouder|dice|dobbelste)", re.I)
+SKIP = re.compile(r"\b(sleeves?|deck ?box|binder(?! collection)|map|toploader|playmat|speelmat|portfolio|kaarthouder|dice|dobbelste)", re.I)
 PAUSE = 1.0           # seconds between requests to the same shop: be a polite visitor
 MAX_PAGES = 15
 
@@ -82,6 +82,33 @@ def woocommerce(base: str) -> list[dict]:
         if len(items) < 100:
             break
         time.sleep(PAUSE)
+    return out
+
+
+NOT_NOW = re.compile(r"uitverkocht|niet (op voorraad|leverbaar)|out of stock|sold out|pre\s*-?\s*order|binnenkort|"
+                     r"verwacht|coming soon", re.I)
+EURO = re.compile(r"(\d{1,4}(?:\.\d{3})*,\d{2})")
+
+
+def search(url: str, item: str) -> list[dict]:
+    """Shops without a public product list: read ONE search-results page (plain HTML, no browser).
+    item = CSS selector of one product tile. Title/link = first text link, price = lowest euro amount
+    (sale price), available = no 'sold out' / 'pre-order' words in the tile."""
+    from bs4 import BeautifulSoup
+    r = requests.get(url, headers=UA, timeout=30)
+    r.raise_for_status()
+    out, seen = [], set()
+    for tile in BeautifulSoup(r.text, "html.parser").select(item):
+        link = next((a for a in tile.find_all("a", href=True)
+                     if a.get_text(strip=True) and "category" not in a["href"]), None)
+        if not link or link["href"] in seen:
+            continue
+        seen.add(link["href"])
+        text = re.sub(r"\s+", " ", tile.get_text(" "))
+        prices = [float(p.replace(".", "").replace(",", ".")) for p in EURO.findall(text)]
+        out.append({"id": link["href"], "title": link.get_text(" ", strip=True), "text": text,
+                    "price": min(prices) if prices else 0.0, "available": not NOT_NOW.search(text),
+                    "url": requests.compat.urljoin(url, link["href"])})
     return out
 
 
@@ -155,6 +182,8 @@ def main():
     sent = 0
     def fetch(shop):   # each shop is still read page by page (polite); different shops run at the same time
         try:
+            if shop["type"] == "search":   # the search query already asks for Pokémon
+                return shop, [p for p in search(shop["url"], shop["item"]) if not SKIP.search(p["title"])], None
             return shop, [p for p in READERS[shop["type"]](shop["url"].rstrip("/")) if is_pokemon_product(p)], None
         except Exception as e:   # one shop down must not stop the others
             return shop, None, e
@@ -191,7 +220,7 @@ def main():
         if old is not None:   # first run per shop only records what's there
             for p in products:
                 before = old.get(p["id"])
-                price = f"€{p['price']:.2f}".replace(".", ",")
+                price = f"€{p['price']:.2f}".replace(".", ",") if p["price"] else "prijs nog onbekend"
                 link = f"<a href=\"{p['url']}\">{html.escape(p['title'])}</a>"
                 f = focus_hit(p, focus)
                 if f:   # focus product: every event
