@@ -60,11 +60,11 @@ def shopify(base: str) -> list[dict]:
     return out
 
 
-def woocommerce(base: str) -> list[dict]:
+def woocommerce(base: str, search: str = "pokemon", per_page: int = 100) -> list[dict]:
     out = []
     for page in range(1, MAX_PAGES + 1):
         r = requests.get(f"{base}/wp-json/wc/store/v1/products",
-                         params={"per_page": 100, "page": page, "search": "pokemon"}, headers=UA, timeout=30)
+                         params={"per_page": per_page, "page": page, "search": search}, headers=UA, timeout=30)
         if r.status_code == 400:   # past the last page
             break
         r.raise_for_status()
@@ -79,7 +79,7 @@ def woocommerce(base: str) -> list[dict]:
                 "available": bool(p.get("is_in_stock")) and bool(p.get("is_purchasable", True)),
                 "url": p.get("permalink", base),
             })
-        if len(items) < 100:
+        if len(items) < per_page:
             break
         time.sleep(PAUSE)
     return out
@@ -184,6 +184,10 @@ def main():
         try:
             if shop["type"] == "search":   # the search query already asks for Pokémon
                 return shop, [p for p in search(shop["url"], shop["item"]) if not SKIP.search(p["title"])], None
+            opts = {k: shop[k] for k in ("search", "per_page") if k in shop}   # e.g. a shop that refuses big pages
+            if shop.get("search"):   # a narrow search ("30th") may not say Pokémon in every title
+                return shop, [p for p in READERS[shop["type"]](shop["url"].rstrip("/"), **opts)
+                              if not SKIP.search(p["title"])], None
             return shop, [p for p in READERS[shop["type"]](shop["url"].rstrip("/")) if is_pokemon_product(p)], None
         except Exception as e:   # one shop down must not stop the others
             return shop, None, e

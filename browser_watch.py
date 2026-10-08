@@ -39,7 +39,47 @@ SHOPS = [   # url = search page (allowed by the shop's robots.txt, checked 2026-
      "url": "https://www.mediamarkt.nl/nl/search.html?query=pokemon%2030th", "item": "[data-test='mms-product-card']"},
     {"name": "Game Mania", "home": "https://www.gamemania.nl",
      "url": "https://www.gamemania.nl/catalogsearch/result/?q=pokemon+30th", "item": "li.product-item, .product-item-info"},
+    # robots.txt forbids its search page, but allows the sitemap and product pages: open each 30th product page
+    {"name": "Spellenvariant", "home": "https://www.spellenvariant.nl",
+     "sitemap": "https://www.spellenvariant.nl/sitemap.xml", "match": r"pokemon-30th"},
 ]
+
+
+def read_product_pages(pg, shop) -> list[dict] | None:
+    import requests
+    xml = requests.get(shop["sitemap"], headers=monitor.UA, timeout=30).text
+    urls = [u for u in re.findall(r"<loc>([^<]+)</loc>", xml) if re.search(shop["match"], u, re.I)][:20]
+    pg.goto(shop["home"], timeout=30000)
+    pg.wait_for_timeout(3000)
+    out = []
+    for url in urls:
+        pg.goto(url, timeout=30000)
+        pg.wait_for_timeout(4000)
+        if BLOCKED.search(pg.title() + " " + pg.inner_text("body")[:800]):
+            return None
+        data = {}
+        for raw in pg.eval_on_selector_all("script[type='application/ld+json']", "els => els.map(e => e.textContent)"):
+            try:
+                items = json.loads(raw)
+            except ValueError:
+                continue
+            for it in items if isinstance(items, list) else [items]:
+                if isinstance(it, dict) and it.get("@type") == "Product":
+                    data = it
+        offer = data.get("offers") or {}
+        offer = offer[0] if isinstance(offer, list) and offer else offer
+        h1 = pg.query_selector("h1")
+        title = data.get("name") or (h1.inner_text().strip() if h1 else url)
+        text = re.sub(r"\s+", " ", pg.inner_text("main") if pg.query_selector("main") else pg.inner_text("body"))
+        if offer.get("availability"):
+            available = "InStock" in offer["availability"]
+        else:
+            available = not NOT_NOW.search(text[:3000]) and bool(re.search(r"op voorraad", text, re.I))
+        price = float(offer.get("price") or 0) or next(
+            (float(p.replace(".", "").replace(",", ".")) for p in EURO.findall(text)), 0.0)
+        out.append({"id": url, "title": title, "text": text[:500], "url": url, "price": price, "available": available})
+        pg.wait_for_timeout(2000)   # polite: one product page at a time
+    return out
 
 
 def load_env():
@@ -88,7 +128,7 @@ def main():
         for shop in SHOPS:
             name = shop["name"]
             try:
-                products = read_shop(pg, shop)
+                products = read_product_pages(pg, shop) if shop.get("sitemap") else read_shop(pg, shop)
             except Exception as e:
                 print(f"{name}: skipped ({str(e)[:80]})")
                 continue
