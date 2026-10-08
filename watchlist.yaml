@@ -20,6 +20,8 @@ msrp:
     - {keywords: ["pokemon center", "elite trainer"], usd: 59.99, gbp: 56.99}
     - {keywords: ["pokémon center", "elite trainer"], usd: 59.99, gbp: 56.99}
     - {keywords: ["elite trainer"], usd: 49.99, gbp: 49.99}
+    - {keywords: ["etb"], usd: 49.99, gbp: 49.99}
+    - {keywords: ["bo bundle"], usd: 26.94}
     - {keywords: ["ultra", "premium"], usd: 179.99}
     - {keywords: ["ditto", "premium"], usd: 39.99}
     - {keywords: ["binder collection"], usd: 31.99, gbp: 37.99}

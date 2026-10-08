@@ -1,2 +1,4 @@
 .env
 __pycache__/
+browser_state.json
+browser_watch.log
