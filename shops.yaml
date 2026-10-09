@@ -12,7 +12,6 @@ shops:
   - {name: "Pokémon Pack",  type: woocommerce, url: "https://pokemonpack.nl"}
   - {name: "TCG Company",   type: woocommerce, url: "https://tcgcompany.nl"}
   - {name: "De Broergrot",  type: shopify,     url: "https://www.debroergrot.nl"}
-  - {name: "PKMkaarten",    type: woocommerce, url: "https://www.pkmkaarten.nl"}
   # added 2026-10-07 from the tcgsniper.nl shop list (only shops with an open product list)
   - {name: "Pokeca",                 type: shopify,     url: "https://pokeca.be"}
   - {name: "PokePlaza",              type: shopify,     url: "https://pokeplaza.nl"}
@@ -50,5 +49,28 @@ shops:
   - {name: "Yellow Duck TCG",        type: shopify,     url: "https://yellowducktcg.nl"}
   - {name: "Zy Cards",               type: woocommerce, url: "https://zycards.nl"}
   - {name: "Global Card Shop",       type: search, url: "https://globalcardshop.com/?s=pokemon+30th&post_type=product", item: ".e-loop-item"}
-  - {name: "Top1Toys",               type: search, url: "https://www.top1toys.nl/catalogsearch/result/?q=pokemon+30th", item: "form.product_addtocart_form"}
+  - {name: "Top1Toys",               type: search, url: "https://www.top1toys.nl/pokemon-artikelen"}   # robots forbids /catalogsearch/
   - {name: "Cees Cards",             type: woocommerce, url: "https://ceescards.eu", search: "30th", per_page: 50}
+  # added 2026-10-09 from the tcgsniper.nl/winkels list (real domains looked up)
+  - {name: "Beam Cards",             type: shopify,     url: "https://beamcardshop.com"}
+  - {name: "Cave Cards",             type: shopify,     url: "https://cavecards.nl"}
+  - {name: "Fantasia Cards",         type: shopify,     url: "https://fantasiacards.de"}
+  - {name: "Gamerz Paradize",        type: shopify,     url: "https://gamerzparadize.nl"}
+  - {name: "JD Collectibles",        type: shopify,     url: "https://jd-collectibles.nl"}
+  - {name: "Nostic Cards",           type: shopify,     url: "https://nostic-cards.nl"}
+  - {name: "OPTCG",                  type: shopify,     url: "https://optcg.nl"}
+  - {name: "Poke Power",             type: shopify,     url: "https://poke-power.eu"}
+  - {name: "TCG Rocks",              type: shopify,     url: "https://tcgrocks.nl"}
+  # search page in plain HTML, product tiles found around links that mention 30th (robots.txt allows the search page)
+  - {name: "Bazaar of Magic",       type: search, url: "https://www.bazaarofmagic.eu/?s=pokemon+30th&post_type=product"}
+  - {name: "Cardbinder",            type: search, url: "https://cardbinder.shop/?s=pokemon+30th&post_type=product"}
+  - {name: "Card Corner",           type: search, url: "https://www.card-corner.de/search?q=30th"}
+  - {name: "Cardgameshop",          type: search, url: "https://www.cardgameshop.be/?s=pokemon+30th&post_type=product"}
+  - {name: "Flash Cards",           type: search, url: "https://flash-cards.be/?s=pokemon+30th&swp_form[form_id]=1"}
+  - {name: "Level Up Shop",         type: search, url: "https://www.levelupshop.be/zoeken?q=pokemon+30th"}
+  - {name: "Memi TCG",              type: search, url: "https://www.memitcg.nl/zoeken?q=pokemon+30th"}
+  - {name: "Peppi Collect",         type: search, url: "https://www.peppicollect.nl/zoeken?q=pokemon+30th"}
+  - {name: "TCG Japan",             type: search, url: "https://tcgjapan.nl/nl/module/iqitsearch/searchiqit?s=30th"}
+  - {name: "Speelkaartenwinkel",    type: search, url: "https://www.speelkaartenwinkel.nl/trading-cards/pokemon.html"}   # robots forbids /catalogsearch/
+  - {name: "TCG Center",            type: search, url: "https://www.tcgcenter.nl/module/iqitsearch/searchiqit?s=pokemon+30th"}
+  - {name: "Yellow Lightning Cards", type: search, url: "https://yellowlightningcards.nl/?s=pokemon+30th&post_type=product&dgwt_wcas=1"}

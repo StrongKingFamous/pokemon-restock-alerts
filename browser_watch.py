@@ -33,24 +33,46 @@ BLOCKED = re.compile(r"you have been blocked|attention required|toegang geweiger
                      r"access denied|captcha", re.I)
 NOT_NOW = re.compile(r"geen bezorging|niet (meer )?(beschikbaar|leverbaar|op voorraad)|uitverkocht|sold out|"
                      r"pre\s*-?\s*order|binnenkort|verwacht", re.I)
-EURO = re.compile(r"€\s?(\d{1,4}(?:\.\d{3})*,\d{2})")
-SHOPS = [   # url = search page (allowed by the shop's robots.txt, checked 2026-10-09); item = CSS of one product tile
-    {"name": "MediaMarkt", "home": "https://www.mediamarkt.nl",
-     "url": "https://www.mediamarkt.nl/nl/search.html?query=pokemon%2030th", "item": "[data-test='mms-product-card']"},
+SHOPS = [   # every path checked against the shop's robots.txt (with * wildcards) on 2026-10-09
+    # search page allowed (robots: Allow: /); item = CSS of one product tile
     {"name": "Game Mania", "home": "https://www.gamemania.nl",
      "url": "https://www.gamemania.nl/catalogsearch/result/?q=pokemon+30th", "item": "li.product-item, .product-item-info"},
-    # robots.txt forbids its search page, but allows the sitemap and product pages: open each 30th product page
+    # search pages forbidden (MediaMarkt: Disallow /*query=, Spellenvariant: /catalogsearch/), sitemaps and product
+    # pages allowed: find the 30th product pages in the sitemap (once a day) and open those
+    {"name": "MediaMarkt", "home": "https://www.mediamarkt.nl",
+     "sitemap": "https://www.mediamarkt.nl/sitemaps/sitemap-index.xml", "sub": r"productdetailspages",
+     "match": r"/product/.*pokemon.*30th"},
     {"name": "Spellenvariant", "home": "https://www.spellenvariant.nl",
      "sitemap": "https://www.spellenvariant.nl/sitemap.xml", "match": r"pokemon-30th"},
 ]
+URL = re.compile(r"https?://[^\s<>\"']+")
 
 
-def read_product_pages(pg, shop) -> list[dict] | None:
-    import requests
-    xml = requests.get(shop["sitemap"], headers=monitor.UA, timeout=30).text
-    urls = [u for u in re.findall(r"<loc>([^<]+)</loc>", xml) if re.search(shop["match"], u, re.I)][:20]
+def sitemap_urls(pg, shop, cache: dict) -> list[str]:
+    """30th product URLs from the shop's sitemap; looked up at most once a day (cache in browser_state.json)."""
+    from datetime import date
+    today = date.today().isoformat()
+    hit = cache.get(shop["name"])
+    if hit and hit["day"] == today:
+        return hit["urls"]
+    pg.goto(shop["sitemap"], timeout=30000)
+    pg.wait_for_timeout(1500)
+    found = URL.findall(pg.content())
+    if shop.get("sub"):   # a sitemap index: open the sub-sitemaps with product pages
+        found = []
+        for sub in dict.fromkeys(u for u in URL.findall(pg.content()) if re.search(shop["sub"], u)):
+            pg.goto(sub, timeout=30000)
+            pg.wait_for_timeout(1000)
+            found += URL.findall(pg.content())
+    urls = list(dict.fromkeys(u for u in found if re.search(shop["match"], u, re.I)))[:30]
+    cache[shop["name"]] = {"day": today, "urls": urls}
+    return urls
+
+
+def read_product_pages(pg, shop, cache: dict) -> list[dict] | None:
     pg.goto(shop["home"], timeout=30000)
     pg.wait_for_timeout(3000)
+    urls = sitemap_urls(pg, shop, cache)
     out = []
     for url in urls:
         pg.goto(url, timeout=30000)
@@ -75,8 +97,7 @@ def read_product_pages(pg, shop) -> list[dict] | None:
             available = "InStock" in offer["availability"]
         else:
             available = not NOT_NOW.search(text[:3000]) and bool(re.search(r"op voorraad", text, re.I))
-        price = float(offer.get("price") or 0) or next(
-            (float(p.replace(".", "").replace(",", ".")) for p in EURO.findall(text)), 0.0)
+        price = float(offer.get("price") or 0) or next(iter(monitor.euro_amounts(text)), 0.0)
         out.append({"id": url, "title": title, "text": text[:500], "url": url, "price": price, "available": available})
         pg.wait_for_timeout(2000)   # polite: one product page at a time
     return out
@@ -106,7 +127,7 @@ def read_shop(pg, shop) -> list[dict] | None:
         if not link or link[0] in seen:
             continue
         seen.add(link[0])
-        prices = [float(p.replace(".", "").replace(",", ".")) for p in EURO.findall(text)]
+        prices = [p for p in monitor.euro_amounts(text) if p > 0]
         out.append({"id": link[0].split("?")[0], "title": link[1], "text": text, "url": link[0],
                     "price": min(prices) if prices else 0.0, "available": not NOT_NOW.search(text)})
     return out
@@ -128,7 +149,8 @@ def main():
         for shop in SHOPS:
             name = shop["name"]
             try:
-                products = read_product_pages(pg, shop) if shop.get("sitemap") else read_shop(pg, shop)
+                products = (read_product_pages(pg, shop, state.setdefault("_sitemaps", {})) if shop.get("sitemap")
+                            else read_shop(pg, shop))
             except Exception as e:
                 print(f"{name}: skipped ({str(e)[:80]})")
                 continue

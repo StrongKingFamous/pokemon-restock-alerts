@@ -85,29 +85,70 @@ def woocommerce(base: str, search: str = "pokemon", per_page: int = 100) -> list
     return out
 
 
-NOT_NOW = re.compile(r"uitverkocht|niet (op voorraad|leverbaar)|out of stock|sold out|pre\s*-?\s*order|binnenkort|"
-                     r"verwacht|coming soon", re.I)
-EURO = re.compile(r"(\d{1,4}(?:\.\d{3})*,\d{2})")
+NOT_NOW = re.compile(r"uitverkocht|niet (op voorraad|leverbaar|beschikbaar)|out of stock|sold out|pre\s*-?\s*order|"
+                     r"binnenkort|verwacht|coming soon|ausverkauft|nicht (auf lager|verfügbar)|vorbestell|"
+                     r"rupture|épuisé|précommande", re.I)
+BUYABLE = re.compile(r"op voorraad|in stock|winkelwagen|winkelmand|add to cart|in den warenkorb|auf lager|"
+                     r"ajouter au panier|en stock|direct leverbaar|bestellen", re.I)
+EURO = re.compile(r"€\s?(\d{1,4}(?:[.,]\d{3})*[.,]\d{2})|(\d{1,4}(?:\.\d{3})*,\d{2})")
 
 
-def search(url: str, item: str) -> list[dict]:
+def euro_amounts(text: str) -> list[float]:
+    """'€ 1.234,50', '€59.95' and '12,99' -> floats (the last . or , followed by 2 digits is the decimal mark)."""
+    out = []
+    for a, b in EURO.findall(text):
+        s = a or b
+        whole, dec = s[:-3], s[-2:]
+        out.append(float(re.sub(r"[.,]", "", whole) + "." + dec))
+    return out
+
+
+def tiles_around_links(soup, words: re.Pattern) -> list:
+    """No tile selector known: start at every link whose text matches `words` and climb to the smallest
+    parent that also shows a price, but not so far that it holds a second product."""
+    tiles = []
+    for a in soup.find_all("a", href=True):
+        if not words.search(a.get_text(" ", strip=True)):
+            continue
+        node = a
+        for _ in range(8):
+            parent = node.parent
+            if parent is None or parent.name in ("body", "html"):
+                break
+            hrefs = {x["href"].split("?")[0] for x in parent.find_all("a", href=True) if words.search(x.get_text(" ", strip=True))}
+            if len(hrefs) > 1:
+                break
+            node = parent
+            if EURO.search(node.get_text(" ")):
+                break
+        if node not in tiles:
+            tiles.append(node)
+    return tiles
+
+
+def search(url: str, item: str | None = None, words: str = r"30th|30 th|30-jarig|30 jaar") -> list[dict]:
     """Shops without a public product list: read ONE search-results page (plain HTML, no browser).
-    item = CSS selector of one product tile. Title/link = first text link, price = lowest euro amount
-    (sale price), available = no 'sold out' / 'pre-order' words in the tile."""
+    item = CSS selector of one product tile (or None: find tiles around links that mention `words`).
+    Title/link = first text link, price = lowest euro amount (sale price),
+    available = no 'sold out' / 'pre-order' words in the tile."""
     from bs4 import BeautifulSoup
     r = requests.get(url, headers=UA, timeout=30)
     r.raise_for_status()
+    soup = BeautifulSoup(r.text, "html.parser")
+    tiles = soup.select(item) if item else tiles_around_links(soup, re.compile(words, re.I))
     out, seen = [], set()
-    for tile in BeautifulSoup(r.text, "html.parser").select(item):
+    for tile in tiles:
         link = next((a for a in tile.find_all("a", href=True)
                      if a.get_text(strip=True) and "category" not in a["href"]), None)
         if not link or link["href"] in seen:
             continue
         seen.add(link["href"])
         text = re.sub(r"\s+", " ", tile.get_text(" "))
-        prices = [float(p.replace(".", "").replace(",", ".")) for p in EURO.findall(text)]
+        prices = [p for p in euro_amounts(text) if p > 0]   # '€ 0,00' = price not set yet
+        # available only with a sign of it (a buy button / 'op voorraad', or at least a price) and no 'sold out' words
+        available = not NOT_NOW.search(text) and bool(BUYABLE.search(text) or prices)
         out.append({"id": link["href"], "title": link.get_text(" ", strip=True), "text": text,
-                    "price": min(prices) if prices else 0.0, "available": not NOT_NOW.search(text),
+                    "price": min(prices) if prices else 0.0, "available": available,
                     "url": requests.compat.urljoin(url, link["href"])})
     return out
 
@@ -183,7 +224,7 @@ def main():
     def fetch(shop):   # each shop is still read page by page (polite); different shops run at the same time
         try:
             if shop["type"] == "search":   # the search query already asks for Pokémon
-                return shop, [p for p in search(shop["url"], shop["item"]) if not SKIP.search(p["title"])], None
+                return shop, [p for p in search(shop["url"], shop.get("item")) if not SKIP.search(p["title"])], None
             opts = {k: shop[k] for k in ("search", "per_page") if k in shop}   # e.g. a shop that refuses big pages
             if shop.get("search"):   # a narrow search ("30th") may not say Pokémon in every title
                 return shop, [p for p in READERS[shop["type"]](shop["url"].rstrip("/"), **opts)

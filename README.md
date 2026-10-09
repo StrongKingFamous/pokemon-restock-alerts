@@ -8,20 +8,38 @@ product is new, back in stock, or (watchlist.yaml) at or below your max price. A
 - Runs on GitHub Actions (`.github/workflows/monitor.yml`); secrets `TELEGRAM_TOKEN` and `TELEGRAM_CHAT_ID`
 - Local test: `python monitor.py --dry-run`
 
-## Big shops: what works (checked 2026-10-09)
+## Coverage (checked 2026-10-09)
 
-| shop | result | how / why not |
-|---|---|---|
-| MediaMarkt | ✅ browser_watch.py (laptop) | Cloudflare refuses scripts and headless; a normal Chrome works; robots.txt allows the search page |
-| Game Mania | ✅ browser_watch.py (laptop) | same as MediaMarkt (robots: `Allow: /`); no 30th cards on sale yet |
-| Spellenvariant | ✅ browser_watch.py (laptop) | robots.txt forbids `/catalogsearch/`, allows sitemap + product pages -> opens the 30th product pages from the sitemap |
-| Cees Cards | ✅ monitor.py (GitHub) | WooCommerce API answers a small search (`30th`, 50 per page); the big `pokemon` 100-per-page request gets 403 |
-| Global Card Shop, Top1Toys | ✅ monitor.py (GitHub) | search page in plain HTML |
-| Intertoys | ❌ | robots.txt for all bots: `Disallow: /search/*`, `/p/*` (products), `/c/*` (categories) |
-| Kruidvat | ❌ | robots.txt: `Disallow: */search?*` and `*/search/*`; Akamai 403 for scripts |
-| Bol | ❌ (official route possible) | robots.txt: `Disallow: /*/s/` (search); official route = Bol Partner Program API (needs a partner account) |
-| Nedgame | ❌ | Cloudflare "Sorry, you have been blocked" also in a normal Chrome after a few automated page loads |
-| Dreamland / Toychamp | ❌ | "Toegang geweigerd", then "Even controleren of je een mens bent" also in a normal Chrome (automated session) |
+Source list: tcgsniper.nl/winkels (102 shops). Every read path is checked against the shop's robots.txt
+**with `*` wildcards** (Python's urllib.robotparser ignores them, which once gave wrong "allowed" answers).
 
-browser_watch.py: Windows task "Pokemon browser watch" every 10 min, off-screen Chrome, one search page (or the few
-30th product pages) per shop per run, stops for that run when a shop shows a block or human check. Laptop must be on.
+- **monitor.py on GitHub (64 shops):** Shopify/WooCommerce product lists, plus `type: search` = one search or
+  category page in plain HTML (product tiles found around links that mention 30th).
+- **browser_watch.py on the laptop (3 shops):** a real Chrome, because these refuse scripts and headless browsers.
+  - Game Mania: search page (robots: `Allow: /`).
+  - MediaMarkt: search is forbidden (`Disallow: /*query=`), so the 30th product pages are found in the sitemap
+    (once a day, ~2.5 min) and opened each run.
+  - Spellenvariant: search is forbidden (`/catalogsearch/`), so the same sitemap + product pages route.
+
+| not included | why |
+|---|---|
+| Intertoys | robots.txt: `Disallow: /search/*`, `/p/*`, `/c/*` |
+| Kruidvat | robots.txt: `Disallow: */search?*`, `*/search/*`; Akamai 403 for scripts |
+| Bol | robots.txt: `Disallow: /*/s/`; official route = Bol Partner Program API (needs a partner account) |
+| Lobbes | robots.txt: `Disallow: */zoek/*` |
+| Gameshop Twente | robots.txt forbids `/catalogsearch/` and every URL with `?`; no sitemap; category page shows no 30th |
+| TCGino | robots.txt: `Disallow: /*?q=` |
+| PKMkaarten | robots.txt: `Disallow: /*?` (the WooCommerce API needs a query string) |
+| Mystery Media | robots.txt: `Disallow: /wp-json/` |
+| Nerdgeek, Panini Belgium | robots.txt forbids their search page |
+| Nedgame | Cloudflare "Sorry, you have been blocked", also in a normal Chrome after a few automated loads |
+| Dreamland / Toychamp | "Toegang geweigerd", then a human check, also in a normal Chrome |
+| Proshop | "Even geduld..." challenge page in a normal Chrome |
+| Catch Your Cards, Dracoon | search page blocked, also in a normal Chrome |
+| Chaos Cards (UK), Games Island (DE) | search only in a JavaScript pop-up; not built |
+| Pokémon Center | Datadome/Imperva; US shop |
+| Cardmarket | marketplace; API only for sellers |
+| pokecardshop.nl, tcgcards.nl, gamebirds.nl, ... | domain for sale / no shop / not a Pokémon shop |
+
+browser_watch.py runs as Windows task "Pokemon browser watch" every 10 min (off-screen Chrome, 15 min limit).
+It stops for that run when a shop shows a block or human check. The laptop must be on.
