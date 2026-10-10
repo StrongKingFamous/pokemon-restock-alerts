@@ -1547,9 +1547,19 @@
 "p": 259.26,
 "w": null
 },
-"/nl/producten/30th-greninja-tin-poster-collection-2-x-first-partner-series-2": {
+"/nl/producten/30th-greninja-tin-poster-collection-2-x-gem-pack-5-box": {
 "a": true,
-"p": 172.79,
+"p": 209.76,
+"w": null
+},
+"/nl/producten/30th-greninja-tin-poster-collection-charizard-super-premium": {
+"a": true,
+"p": 185.11,
+"w": null
+},
+"/nl/producten/30th-poster-colletion-greninja-ex-box-prismatic-elite-trainer-box": {
+"a": true,
+"p": 270.61,
 "w": null
 },
 "/nl/producten/30th-sylveon-ex-box-greninja-tin-box-me05-pitch-black": {
@@ -1557,19 +1567,19 @@
 "p": 318.11,
 "w": null
 },
-"/nl/producten/binder-collection-30th-halve-boosterbox-me04-chaos-rising-10-pitch-black-packs": {
-"a": true,
-"p": 260.68,
-"w": null
-},
-"/nl/producten/pokemon-binder-collection-30th-celebration-pokemon-build-battle-me03-perfect-order": {
-"a": true,
-"p": 113.91,
-"w": null
-},
 "/nl/producten/pokemon-tin-30th-celebration-greninja-ex-pokemon-super-premium-collection-charizard-ex": {
 "a": true,
 "p": 147.16,
+"w": null
+},
+"/nl/producten/sylveon-tin-30th-collector-chest-fall-10-me05-pitch-black-packs": {
+"a": true,
+"p": 170.43,
+"w": null
+},
+"/nl/producten/sylveon-tin-poster-collection-30th-celebrations-destined-rivals-boosterbox": {
+"a": true,
+"p": 474.86,
 "w": null
 }
 },
@@ -20216,7 +20226,7 @@
 "Liwo TCG": {
 "15616887521663": {
 "a": true,
-"p": 76.99,
+"p": 72.99,
 "w": null
 },
 "15616893550975": {
@@ -39306,7 +39316,7 @@
 },
 "16066452554072": {
 "a": true,
-"p": 110.0,
+"p": 88.0,
 "w": null
 },
 "16084952842584": {
