@@ -1537,19 +1537,24 @@
 "p": 0.0,
 "w": null
 },
-"/nl/producten/30th-greninja-ex-box-me03-build-battle-10-packs-me05-pitch-black": {
+"/nl/producten/30th-binder-collection-sylveon-ex-box-prismatic-elite-trainer-box": {
 "a": true,
-"p": 156.18,
+"p": 308.61,
 "w": null
 },
-"/nl/producten/30th-greninja-tin-poster-collection-charizard-super-premium": {
+"/nl/producten/30th-celebration-elite-trainer-box-2-x-first-partner-series-3-mystery-pokemon-plush": {
 "a": true,
-"p": 185.11,
+"p": 259.26,
 "w": null
 },
-"/nl/producten/30th-poster-colletion-greninja-ex-box-prismatic-elite-trainer-box": {
+"/nl/producten/30th-greninja-tin-poster-collection-2-x-first-partner-series-2": {
 "a": true,
-"p": 270.61,
+"p": 172.79,
+"w": null
+},
+"/nl/producten/30th-sylveon-ex-box-greninja-tin-box-me05-pitch-black": {
+"a": true,
+"p": 318.11,
 "w": null
 },
 "/nl/producten/binder-collection-30th-halve-boosterbox-me04-chaos-rising-10-pitch-black-packs": {
@@ -1562,24 +1567,9 @@
 "p": 113.91,
 "w": null
 },
-"/nl/producten/pokemon-tin-30th-celebration-sylveon-ex-10-x-boosterpack-destined-rivals": {
+"/nl/producten/pokemon-tin-30th-celebration-greninja-ex-pokemon-super-premium-collection-charizard-ex": {
 "a": true,
-"p": 170.48,
-"w": null
-},
-"/nl/producten/sylveon-greninja-ex-box-30th-celebration-gem-pack-4-box-super-premium-charizard": {
-"a": true,
-"p": 246.95,
-"w": null
-},
-"/nl/producten/sylveon-tin-30th-collector-chest-fall-10-me05-pitch-black-packs": {
-"a": true,
-"p": 170.43,
-"w": null
-},
-"/nl/producten/sylveon-tin-poster-collection-30th-celebrations-destined-rivals-boosterbox": {
-"a": true,
-"p": 474.86,
+"p": 147.16,
 "w": null
 }
 },
@@ -2800,7 +2790,7 @@
 "w": null
 },
 "10362332446986": {
-"a": true,
+"a": false,
 "p": 7.99,
 "w": null
 },
@@ -3305,7 +3295,7 @@
 "w": null
 },
 "10556914434314": {
-"a": false,
+"a": true,
 "p": 167.99,
 "w": null
 },
@@ -3330,8 +3320,8 @@
 "w": null
 },
 "10557405102346": {
-"a": false,
-"p": 0.0,
+"a": true,
+"p": 29.99,
 "w": null
 },
 "10557872406794": {
@@ -3340,7 +3330,7 @@
 "w": null
 },
 "10560867467530": {
-"a": false,
+"a": true,
 "p": 29.99,
 "w": null
 },
@@ -3485,7 +3475,7 @@
 "w": null
 },
 "10602181624074": {
-"a": true,
+"a": false,
 "p": 8.49,
 "w": null
 },
@@ -3495,7 +3485,7 @@
 "w": null
 },
 "10602858873098": {
-"a": true,
+"a": false,
 "p": 6.99,
 "w": null
 },
@@ -4850,7 +4840,7 @@
 "w": null
 },
 "9989840863498": {
-"a": true,
+"a": false,
 "p": 289.99,
 "w": null
 },
@@ -5683,7 +5673,7 @@
 },
 "10537308127565": {
 "a": false,
-"p": 129.95,
+"p": 157.95,
 "w": null
 },
 "10538899145037": {
@@ -5913,7 +5903,7 @@
 },
 "10579732824397": {
 "a": false,
-"p": 74.95,
+"p": 58.95,
 "w": null
 },
 "10585037963597": {
@@ -6532,7 +6522,7 @@
 "w": null
 },
 "10916730143053": {
-"a": true,
+"a": false,
 "p": 59.95,
 "w": null
 },
@@ -6541,8 +6531,13 @@
 "p": 44.95,
 "w": null
 },
-"10928535241037": {
+"10928346562893": {
 "a": false,
+"p": 29.95,
+"w": null
+},
+"10928535241037": {
+"a": true,
 "p": 89.95,
 "w": null
 },
@@ -10229,7 +10224,7 @@
 "w": null
 },
 "15952676258136": {
-"a": true,
+"a": false,
 "p": 29.99,
 "w": null
 },
@@ -10656,6 +10651,11 @@
 "16088767529304": {
 "a": true,
 "p": 21.99,
+"w": null
+},
+"16092068807000": {
+"a": true,
+"p": 279.99,
 "w": null
 },
 "7151386656921": {
@@ -17364,7 +17364,7 @@
 },
 "10278857769273": {
 "a": true,
-"p": 69.99,
+"p": 79.99,
 "w": null
 },
 "10290344100153": {
@@ -27049,6 +27049,11 @@
 "p": 119.95,
 "w": null
 },
+"15492286349661": {
+"a": true,
+"p": 99.0,
+"w": null
+},
 "15682942796125": {
 "a": true,
 "p": 9.5,
@@ -27062,6 +27067,11 @@
 "15713610269021": {
 "a": true,
 "p": 599.0,
+"w": null
+},
+"15801513935197": {
+"a": true,
+"p": 89.95,
 "w": null
 },
 "15879894991197": {
@@ -36197,7 +36207,7 @@
 },
 "11115413537106": {
 "a": true,
-"p": 204.95,
+"p": 209.95,
 "w": null
 },
 "11115466064210": {
@@ -38380,7 +38390,7 @@
 "w": null
 },
 "15097908756824": {
-"a": true,
+"a": false,
 "p": 95.0,
 "w": null
 },
@@ -38650,7 +38660,7 @@
 "w": null
 },
 "15458565816664": {
-"a": true,
+"a": false,
 "p": 24.99,
 "w": null
 },
@@ -45853,7 +45863,7 @@
 "w": null
 },
 "15551719833865": {
-"a": true,
+"a": false,
 "p": 149.95,
 "w": null
 },
@@ -46243,7 +46253,7 @@
 "w": null
 },
 "15555897917705": {
-"a": true,
+"a": false,
 "p": 189.95,
 "w": null
 },
@@ -50131,6 +50141,11 @@
 "p": 82.95,
 "w": null
 },
+"11065852789003": {
+"a": true,
+"p": 23.95,
+"w": null
+},
 "8623755985163": {
 "a": false,
 "p": 94.95,
@@ -50363,7 +50378,7 @@
 },
 "8862734483723": {
 "a": true,
-"p": 167.95,
+"p": 164.95,
 "w": null
 },
 "8862734811403": {
@@ -50787,8 +50802,8 @@
 "w": null
 },
 "9794824929547": {
-"a": true,
-"p": 123.95,
+"a": false,
+"p": 119.95,
 "w": null
 },
 "9794830729483": {
@@ -56598,6 +56613,11 @@
 }
 },
 "Zy Cards": {
+"13424": {
+"a": true,
+"p": 5.45,
+"w": null
+},
 "14410": {
 "a": true,
 "p": 2.75,
@@ -56665,7 +56685,7 @@
 },
 "9606": {
 "a": true,
-"p": 21.95,
+"p": 20.6,
 "w": null
 }
 }
